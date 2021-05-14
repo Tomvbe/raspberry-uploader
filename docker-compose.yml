@@ -1,0 +1,10 @@
+version: "3.5"
+services:
+  uploader:
+    image: tomvanbesien/raspberry-uploader
+    container_name: raspberry-uploader
+    ports:
+      - "8765:8080"
+    volumes:
+      - /c/dev/uploader:/uploads
+    restart: "unless-stopped"
