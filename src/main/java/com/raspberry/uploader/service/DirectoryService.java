@@ -23,24 +23,20 @@ public class DirectoryService {
 
     @PostConstruct
     private void init() {
-        directories.values().forEach(dir -> {
-            final Path dirPath = Paths.get(dir.getPath());
-            if (Files.notExists(dirPath)) {
-                createDirectory(dirPath);
-            }
-        });
+        directories.values().forEach(dir -> initializeDirectory(dir.getPath()));
     }
 
     public String determineDirectory(MediaType type, String dir) {
-
         final String absoluteDir = directories.get(type).getPath() + File.separator + dir;
+        initializeDirectory(absoluteDir);
+        return absoluteDir;
+    }
 
-        final Path dirPath = Paths.get(absoluteDir);
+    private void initializeDirectory(String dir) {
+        final Path dirPath = Paths.get(dir);
         if (Files.notExists(dirPath)) {
             createDirectory(dirPath);
         }
-
-        return absoluteDir;
     }
 
     /**
