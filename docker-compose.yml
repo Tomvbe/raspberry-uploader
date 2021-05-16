@@ -6,5 +6,7 @@ services:
     ports:
       - "8765:8080"
     volumes:
-      - /c/dev/uploader:/uploads
+      - /c/dev/uploader/shows:/shows
+      - /c/dev/uploader/movies:/movies
+      - /c/dev/uploader/music:/music
     restart: "unless-stopped"
