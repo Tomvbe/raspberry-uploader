@@ -23,7 +23,12 @@ public class DirectoryService {
 
     @PostConstruct
     private void init() {
-        // TODO: 16/05/2021 check if app config dirs exist if not create them
+        directories.values().forEach(dir -> {
+            final Path dirPath = Paths.get(dir.getPath());
+            if (Files.notExists(dirPath)) {
+                createDirectory(dirPath);
+            }
+        });
     }
 
     public String determineDirectory(MediaType type, String dir) {
