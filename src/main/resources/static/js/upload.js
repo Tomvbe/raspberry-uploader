@@ -1,41 +1,46 @@
-function postUploadFile(data, fileName) {
-    $.ajax({
-        url: 'ajax/upload',
-        type: 'POST',
-        data,
-
-        // You *must* include these options!
-        cache: false,
-        contentType: false,
-        processData: false,
-
-        // Custom XMLHttpRequest
-        xhr: function () {
-            let myXhr = $.ajaxSettings.xhr();
-            if (myXhr.upload) {
-                // For handling the progress of the upload
-                myXhr.upload.addEventListener('progress', function (e) {
-                    if (e.lengthComputable) {
-                        $('#' + fileName).attr({
-                            value: e.loaded,
-                            max: e.total,
-                        });
-                    }
-                }, false);
-            }
-            return myXhr;
-        }
-    });
-}
-
 function upload() {
     const files = document.getElementById('dropper').files;
+    let fileCountToProcess = files.length;
+
     Array.from(files).forEach(file => {
         const data = new FormData($('form')[0]);
         // noinspection JSCheckFunctionSignatures
         data.set('files', file);
         postUploadFile(data, convertFileNameToId(file.name));
     })
+
+    function postUploadFile(data, fileName) {
+        $.ajax({
+            url: 'ajax/upload',
+            type: 'POST',
+            data,
+
+            // You *must* include these options!
+            cache: false,
+            contentType: false,
+            processData: false,
+
+            // Custom XMLHttpRequest
+            xhr: function () {
+                let myXhr = $.ajaxSettings.xhr();
+                if (myXhr.upload) {
+                    // For handling the progress of the upload
+                    myXhr.upload.addEventListener('progress', function (e) {
+                        if (e.lengthComputable) {
+                            $('#' + fileName).attr({
+                                value: e.loaded,
+                                max: e.total,
+                            });
+                        }
+                        if (e.loaded >= e.total && --fileCountToProcess === 0) {
+                            alert('Upload finished!')
+                        }
+                    }, false);
+                }
+                return myXhr;
+            }
+        });
+    }
 }
 
 /**
