@@ -1,12 +1,10 @@
 package com.raspberry.uploader.service;
 
 import com.raspberry.uploader.exception.FileStorageException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,43 +17,18 @@ import static org.springframework.util.StringUtils.cleanPath;
 @Service
 public class FileService {
 
-    @Value("${app.upload.dir}")
-    public String BASE_UPLOAD_DIR;
-
-    public void uploadFiles(MultipartFile[] files, String relativeDir) {
-
-        final String absoluteDir = BASE_UPLOAD_DIR + File.separator + relativeDir;
-        final Path dirPath = Paths.get(absoluteDir);
-        if (Files.notExists(dirPath)) {
-            createDirectory(dirPath);
-        }
-
-        Arrays.asList(files).forEach(file -> uploadFile(file, absoluteDir));
+    public void uploadFiles(MultipartFile[] files, String dir) {
+        Arrays.asList(files).forEach(file -> uploadFile(file, dir));
     }
 
-    /**
-     * Uploads come in async so it possible for two thread to create a new directory at the same time.
-     * Technically creating a new directory a second time is only a problem when there is already content in the dir.
-     * Better safe than sorry :)
-     */
-    synchronized private void createDirectory(Path dirPath) {
-        try {
-            if (Files.notExists(dirPath)) {
-                Files.createDirectory(dirPath);
-            }
-        } catch (IOException e) {
-            throw new FileStorageException("Could not create a new directory for the files", e);
-        }
-    }
-
-    private void uploadFile(MultipartFile file, String absoluteDir) {
+    private void uploadFile(MultipartFile file, String dir) {
 
         if (file == null || file.isEmpty()) {
             throw new FileStorageException("No file(s) selected");
         }
 
         try {
-            String absoluteFileName = absoluteDir + File.separator + cleanPath(requireNonNull(file.getOriginalFilename()));
+            String absoluteFileName = dir + File.separator + cleanPath(requireNonNull(file.getOriginalFilename()));
             final Path path = Paths.get(absoluteFileName);
             Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
