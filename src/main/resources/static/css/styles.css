@@ -8,6 +8,11 @@ body {
     background: #abd2b2;
 }
 
+.errorContainer {
+    margin: 2em;
+    background-color: lightpink;
+}
+
 #uploadButton {
     background-color: #1f7123; /* Green */
     border: none;

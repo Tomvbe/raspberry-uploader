@@ -39,6 +39,10 @@ function upload() {
                     }, false);
                 }
                 return myXhr;
+            },
+
+            error: function(xhr) {
+                $('.errorContainer')[0].innerHTML = xhr?.responseJSON?.trace;
             }
         });
     }

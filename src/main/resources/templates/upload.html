@@ -12,6 +12,13 @@
         Group files in directory (optional):
         <input type="text" name="directory" style="margin-bottom: 15px"/>
       </label>
+      <label for="type">Choose media type:</label>
+      <select name="type" id="type">
+        <option th:each="type : ${T(com.raspberry.uploader.service.MediaType).values()}"
+                th:value="${type}"
+                th:text="${type}">
+        </option>
+      </select>
       <div class="form-group files">
         <input id="dropper" type="file" name="files" oninput="createUploadTable(this.files)" multiple/>
       </div>
@@ -19,6 +26,8 @@
 
       <input id="uploadButton" onclick="upload()" type="button" value="Upload"/>
     </form>
+
+    <div class="errorContainer"></div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"
             integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
