@@ -1,6 +1,6 @@
 function postUploadFile(data, fileName) {
     $.ajax({
-        url: 'upload',
+        url: 'ajax/upload',
         type: 'POST',
         data,
 

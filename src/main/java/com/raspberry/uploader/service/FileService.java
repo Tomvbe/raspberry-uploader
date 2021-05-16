@@ -1,6 +1,7 @@
 package com.raspberry.uploader.service;
 
 import com.raspberry.uploader.exception.FileStorageException;
+import lombok.Synchronized;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +23,7 @@ public class FileService {
     @Value("${app.upload.dir}")
     public String BASE_UPLOAD_DIR;
 
-    public String uploadFiles(MultipartFile[] files, String relativeDir) {
+    public void uploadFiles(MultipartFile[] files, String relativeDir) {
 
         final String absoluteDir = BASE_UPLOAD_DIR + File.separator + relativeDir;
         final Path dirPath = Paths.get(absoluteDir);
@@ -31,7 +32,6 @@ public class FileService {
         }
 
         Arrays.asList(files).forEach(file -> uploadFile(file, absoluteDir));
-        return absoluteDir;
     }
 
     private void createDirectory(Path dirPath) {
