@@ -1,12 +1,9 @@
-function postUploadFile(data, sequenceId) {
+function postUploadFile(data, fileName) {
     $.ajax({
         url: 'upload',
         type: 'POST',
-
-        // Form data
         data,
 
-        // Tell jQuery not to process data or worry about content-type
         // You *must* include these options!
         cache: false,
         contentType: false,
@@ -19,9 +16,7 @@ function postUploadFile(data, sequenceId) {
                 // For handling the progress of the upload
                 myXhr.upload.addEventListener('progress', function (e) {
                     if (e.lengthComputable) {
-                        const progressId = '#progressId' + sequenceId;
-                        // $('progress').attr({
-                        $(progressId).attr({
+                        $('#' + fileName).attr({
                             value: e.loaded,
                             max: e.total,
                         });
@@ -35,26 +30,38 @@ function postUploadFile(data, sequenceId) {
 
 function upload() {
     const files = document.getElementById('dropper').files;
-    let sequenceId = 0;
     Array.from(files).forEach(file => {
         const data = new FormData($('form')[0]);
+        // noinspection JSCheckFunctionSignatures
         data.set('files', file);
-        postUploadFile(data, sequenceId++);
+        postUploadFile(data, convertFileNameToId(file.name));
     })
 }
 
-function createUploadTable(droppedFiles) {
-    const builder = createTableBuilder();
-    builder.addHeaders(['Size', 'Name', 'Progress']);
+/**
+ * jquery id selector can't handle any special chars not even base64 (contains '=', '/' and '+').
+ */
+function convertFileNameToId(name) {
+    let id = '';
+    for (let i = 0; i < name.length; i++) {
+        id += name.charCodeAt(i);
+    }
+    return id;
+}
 
-    let idSequence = 0;
-    Array.from(droppedFiles).forEach(file => {
-        builder.addRow([
-            Math.floor(file.size / 1000000) + ' MB',
-            file.name,
-            '<progress id=progressId' + idSequence++ + '></progress>'
-        ])
-    })
+function createTableRowForFile(file) {
+    return [
+        Math.floor(file.size / 1000000) + ' MB',
+        file.name,
+        '<progress id=' + convertFileNameToId(file.name) + '></progress>'
+    ]
+}
+
+function createUploadTable(files) {
+    const builder = createTableBuilder();
+
+    builder.addHeaders(['Size', 'Name', 'Progress']);
+    Array.from(files).forEach(file => builder.addRow(createTableRowForFile(file)));
 
     document.getElementById('selectedFiles').innerHTML = builder.build();
 }
