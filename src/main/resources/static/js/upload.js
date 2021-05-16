@@ -1,4 +1,5 @@
 function upload() {
+    disableButtonTemporarily('#uploadButton');
     const files = document.getElementById('dropper').files;
     let fileCountToProcess = files.length;
 
@@ -41,6 +42,11 @@ function upload() {
             }
         });
     }
+}
+
+function disableButtonTemporarily(buttonId, disableTimeMs = 5000) {
+    $(buttonId).attr('disabled', true);
+    setTimeout(() => $('#uploadButton').attr('disabled', false), disableTimeMs);
 }
 
 /**
