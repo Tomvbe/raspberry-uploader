@@ -18,8 +18,7 @@ public class MediaTypeConfig {
 
     @Getter
     @Setter
-    public static class Directory
-    {
+    public static class Directory {
         private String path;
     }
 
