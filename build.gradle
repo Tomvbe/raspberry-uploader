@@ -34,3 +34,6 @@ dependencies {
 test {
 	useJUnitPlatform()
 }
+
+// todo task triggered before bootRun to copy and explode property files
+// https://www.credera.com/insights/gradle-profiles-for-multi-project-spring-boot-applications

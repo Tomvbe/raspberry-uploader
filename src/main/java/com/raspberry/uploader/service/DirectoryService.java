@@ -6,10 +6,12 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.EnumMap;
 
 @Service
@@ -26,17 +28,23 @@ public class DirectoryService {
         directories.values().forEach(dir -> initializeDirectory(dir.getPath()));
     }
 
-    public String determineDirectory(MediaType type, String dir) {
-        final String absoluteDir = directories.get(type).getPath() + File.separator + dir;
-        initializeDirectory(absoluteDir);
-        return absoluteDir;
+    public String determineBaseDirectory(MediaType type) {
+        return directories.get(type).getPath();
     }
 
-    private void initializeDirectory(String dir) {
+    public String determineBaseDirectory(MediaType type, String dir) {
+        return determineBaseDirectory(type) + File.separator + dir;
+    }
+
+    public void initializeDirectory(String dir) {
         final Path dirPath = Paths.get(dir);
         if (Files.notExists(dirPath)) {
             createDirectory(dirPath);
         }
+    }
+
+    public File[] listDirectories(String path) {
+        return new File(path).listFiles(File::isDirectory);
     }
 
     /**

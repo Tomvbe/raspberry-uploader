@@ -24,7 +24,8 @@ public class UploadAjaxController {
     public void multiFileUpload(@RequestParam("files") MultipartFile[] files,
                                 @RequestParam("directory") String dir,
                                 @RequestParam("type") MediaType type) {
-        final String baseDir = directoryService.determineDirectory(type, dir);
+        final String baseDir = directoryService.determineBaseDirectory(type, dir);
+        directoryService.initializeDirectory(baseDir);
         fileService.uploadFiles(files, baseDir);
     }
 
