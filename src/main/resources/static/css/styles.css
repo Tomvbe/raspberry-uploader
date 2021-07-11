@@ -9,7 +9,11 @@
     margin-bottom: 15px;
 }
 
-#newDirectory {
+/*
+    We hide the dropdown initially to avoid adding files to the first directory of the dropdown by accident.
+    We could have added an empty dropdown value and validation but switching defaults is less work (:
+ */
+#existingDirectory {
     display: none;
 }
 
