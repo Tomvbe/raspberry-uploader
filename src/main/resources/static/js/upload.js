@@ -8,8 +8,8 @@ const existingDirectory = "#existingDirectory";
 window.onload = function() {
     updateDirectoryList(document.getElementById("type").value);
     createDirectorySelectionVisibilityListener();
+    activateNotifications();
 }
-
 
 function areMandatoryFieldsValid() {
     if ($(isExistingDirectoryNo).is(":checked")) {
@@ -73,7 +73,9 @@ function upload() {
                     });
                 }
                 if (e.loaded >= e.total && --fileCountToProcess === 0) {
-                    alert('Upload finished!')
+                    new Notification("New message incoming", {
+                        body: "Upload finished!",
+                    })
                 }
             }, false);
         }
@@ -193,3 +195,12 @@ function getDirectoryList(type) {
             })
         });
 }
+
+function activateNotifications() {
+    if (Notification.permission !== "denied") {
+        Notification.requestPermission().then(permission => {
+            console.log(permission);
+        });
+    }
+}
+
