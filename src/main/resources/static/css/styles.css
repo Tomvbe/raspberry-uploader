@@ -4,6 +4,15 @@
     outline-offset: -10px;
 }
 
+#newDirectory, #existingDirectory, #directorySelection {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+#newDirectory {
+    display: none;
+}
+
 body {
     background: #abd2b2;
 }

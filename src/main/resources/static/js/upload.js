@@ -1,50 +1,83 @@
+const isExistingDirectoryYes = "#isExistingDirectoryYes";
+const isExistingDirectoryNo = "#isExistingDirectoryNo";
+const newDirectoryInput = "#newDirectoryInput";
+const existingDirectoryInput = "#existingDirectoryInput";
+const newDirectory = "#newDirectory";
+const existingDirectory = "#existingDirectory";
+
+window.onload = function() {
+    updateDirectoryList(document.getElementById("type").value);
+    createDirectorySelectionVisibilityListener();
+}
+
+
+function areMandatoryFieldsValid() {
+    if ($(isExistingDirectoryNo).is(":checked")) {
+        if(!$(newDirectoryInput).val()) {
+            alert("PLEASE SELECT A DIRECTORY.")
+            return false;
+        }
+    }
+
+    return true;
+}
+
 function upload() {
+    // To avoid duplicate upload calls by double-clicking.
     disableButtonTemporarily('#uploadButton');
+
+    if (!areMandatoryFieldsValid()) {
+        return;
+    }
+
     const files = document.getElementById('dropper').files;
     let fileCountToProcess = files.length;
+    uploadFiles(files);
 
-    Array.from(files).forEach(file => {
-        const data = new FormData($('form')[0]);
-        // noinspection JSCheckFunctionSignatures
-        data.set('files', file);
-        postUploadFile(data, convertFileNameToId(file.name));
-    })
+    function uploadFiles(files) {
+        Array.from(files).forEach(file => {
+            const data = new FormData($('form')[0]);
+            // noinspection JSCheckFunctionSignatures
+            data.set('files', file);
+            data.set('directory', $(isExistingDirectoryYes).is(":checked") ? $(existingDirectoryInput).val() : $(newDirectoryInput).val());
+            postUploadFile(data, convertFileNameToId(file.name));
+        })
+    }
 
     function postUploadFile(data, fileName) {
         $.ajax({
             url: 'ajax/upload',
             type: 'POST',
             data,
-
-            // You *must* include these options!
             cache: false,
             contentType: false,
             processData: false,
-
-            // Custom XMLHttpRequest
-            xhr: function () {
-                let myXhr = $.ajaxSettings.xhr();
-                if (myXhr.upload) {
-                    // For handling the progress of the upload
-                    myXhr.upload.addEventListener('progress', function (e) {
-                        if (e.lengthComputable) {
-                            $('#' + fileName).attr({
-                                value: e.loaded,
-                                max: e.total,
-                            });
-                        }
-                        if (e.loaded >= e.total && --fileCountToProcess === 0) {
-                            alert('Upload finished!')
-                        }
-                    }, false);
-                }
-                return myXhr;
-            },
-
-            error: function(xhr) {
-                $('.errorContainer')[0].innerHTML = xhr?.responseJSON?.trace;
-            }
+            xhr: () => monitorUploadProcess(fileName),
+            error: (xhr) => handleError(xhr)
         });
+    }
+
+    function handleError(xhr) {
+        $('.errorContainer')[0].innerHTML = xhr?.responseJSON?.trace;
+    }
+
+    function monitorUploadProcess(fileName) {
+        let myXhr = $.ajaxSettings.xhr();
+        if (myXhr.upload) {
+            // For handling the progress of the upload
+            myXhr.upload.addEventListener('progress', function (e) {
+                if (e.lengthComputable) {
+                    $('#' + fileName).attr({
+                        value: e.loaded,
+                        max: e.total,
+                    });
+                }
+                if (e.loaded >= e.total && --fileCountToProcess === 0) {
+                    alert('Upload finished!')
+                }
+            }, false);
+        }
+        return myXhr;
     }
 }
 
@@ -109,4 +142,54 @@ function createTableBuilder() {
         addRow,
         build
     }
+}
+
+function createDirectorySelectionVisibilityListener() {
+
+    function showSelectExistingDirectory() {
+        $(existingDirectory).show();
+        $(newDirectory).hide();
+        updateDirectoryList(document.getElementById("type").value);
+    }
+
+    function showSelectNewDirectory() {
+        $(existingDirectory).hide();
+        $(newDirectory).show();
+    }
+
+    $(isExistingDirectoryYes).on('change', function () {
+        this.checked ? showSelectExistingDirectory() : showSelectNewDirectory();
+    });
+
+    $(isExistingDirectoryNo).on('change', function () {
+        this.checked ? showSelectNewDirectory() : showSelectExistingDirectory();
+    });
+}
+
+function updateDirectoryList(mediaType) {
+    getDirectoryList(mediaType)
+}
+
+function getDirectoryList(type) {
+
+    function removeOptions(selectElement) {
+        let i, L = selectElement.options.length - 1;
+        for(i = L; i >= 0; i--) {
+            selectElement.remove(i);
+        }
+    }
+
+    $.get( "directory/list", { type } )
+        .done(data => {
+
+            const select = document.getElementById("existingDirectoryInput");
+            removeOptions(select);
+
+            data.forEach(dir => {
+                const el = document.createElement("option");
+                el.textContent = dir;
+                el.value = dir;
+                select.appendChild(el);
+            })
+        });
 }

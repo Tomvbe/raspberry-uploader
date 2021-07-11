@@ -7,20 +7,35 @@
   <body>
     <h1>File uploader</h1>
 
-    <form method="POST" action="/upload" enctype="multipart/form-data">
-      <label>
-        Group files in directory (optional):
-        <input type="text" name="directory" style="margin-bottom: 15px"/>
-      </label>
-      <label for="type">Choose media type:</label>
-      <select name="type" id="type">
-        <option th:each="type : ${T(com.raspberry.uploader.service.MediaType).values()}"
-                th:value="${type}"
-                th:text="${type}">
-        </option>
-      </select>
-      <div class="form-group files">
-        <input id="dropper" type="file" name="files" oninput="createUploadTable(this.files)" multiple/>
+    <form method="POST" enctype="multipart/form-data">
+      <div id="mediaSelection">
+        <label for="type">Choose media type:</label>
+        <select name="type" id="type" onchange="updateDirectoryList(event.target.value)">
+          <option th:each="type : ${T(com.raspberry.uploader.service.MediaType).values()}"
+                  th:value="${type}"
+                  th:text="${type}">
+          </option>
+        </select>
+      </div>
+      <div id="directorySelection">
+        Use existing directory:
+        <label for="isExistingDirectoryYes">Yes</label>
+        <input type="radio" id="isExistingDirectoryYes" name="isExistingDirectory" value="Yes" checked>
+        <label for="isExistingDirectoryNo">No</label>
+        <input type="radio" id="isExistingDirectoryNo" name="isExistingDirectory" value="No">
+        <div id="newDirectory">
+          <label for="newDirectoryInput">Group files in new directory:</label>
+            <input id="newDirectoryInput" type="text" name="newDirectoryInput" />
+        </div>
+        <div id="existingDirectory">
+          <label for="existingDirectoryInput">Choose existing directory:</label>
+          <select id="existingDirectoryInput" name="existingDirectoryInput"></select>
+        </div>
+      </div>
+      <div id="filesSelection">
+        <div class="form-group files">
+          <input id="dropper" type="file" name="files" oninput="createUploadTable(this.files)" multiple/>
+        </div>
       </div>
       <div id="selectedFiles"></div>
 
